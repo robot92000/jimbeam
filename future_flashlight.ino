@@ -4,6 +4,9 @@ MODES
 	RGB
 	Police
 	Party Strobe
+	
+	to further understand the Arduino IDE, go here: https://www.arduino.cc/reference/en/
+	
 */
 const int inputSetup[] = {A0, A1, A2, A3, 2, 3, 4, 5};
 
