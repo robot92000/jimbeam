@@ -1,9 +1,10 @@
 #include <FastLED.h>
 
+//Number of LEDs on strip
 #define NUM_LEDS 92
 #define LED_DATA_PIN 2
 
-CRGB shifterLeds[NUM_LEDS];
+CRGB shifterLeds[NUM_LEDS]; //FastLED Library custom varible
 
 //	Inputs
 const int selSolidColor = 3;
@@ -58,7 +59,7 @@ int boolLEDStartToMidRangeRight;
 int boolLEDMidToHighRangeLeft;
 int boolLEDMidToHighRangeRight;
 
-
+// Initialization startup script for Arduino
 void setup() {
 	FastLED.addLeds<WS2812B, LED_DATA_PIN, GRB>(shifterLeds, NUM_LEDS);
 	pinMode(selSolidColor, INPUT);
@@ -70,6 +71,7 @@ void setup() {
 	Serial.begin(9600);
 }
 
+//Main Arduino Loop
 void loop() {
 	Serial.print("Tail Light Circuit: ");
 	brightnessControl();
@@ -78,8 +80,9 @@ void loop() {
 	boolMode();
 }
 
+//This simple funtion controlls the master brightness for the entire LED Strip. Basically make it darker at light
 void brightnessControl() {
-	if (digitalRead(illuminationSig) == HIGH) {
+	if (digitalRead(illuminationSig) == HIGH) { //Illumination signal = Parking lights on vehicle
 		masterBrightness = 64;
 		Serial.print("On");
 	} else {
@@ -89,6 +92,7 @@ void brightnessControl() {
 	FastLED.setBrightness(masterBrightness);
 }
 
+//The main star of the show with the RPM reactive lighting
 void boolMode() {
 	while (digitalRead(selBoolMode) == HIGH) {
 		serialDebug("Bool Mode", EJ20RPM);
@@ -159,6 +163,7 @@ void boolMode() {
 	}
 }
 
+// Solid Color...
 void solidColor() {
 	while (digitalRead(selSolidColor) == HIGH) {
 		serialDebug("Solid Color", hueValue);
@@ -170,6 +175,7 @@ void solidColor() {
 	}
 }
 
+//Gradient slow moves
 void chillMode() {
 	while (digitalRead(selChill) == HIGH) {
 		serialDebug("Chill Mode", paletteIndex);
@@ -181,6 +187,7 @@ void chillMode() {
 	}
 }
 
+//Debug status over serial console
 void serialDebug(char currentMode[], int debugValue) {
 	Serial.print("Tail Light Circuit: ");
 	Serial.print(digitalRead(illuminationSig));
