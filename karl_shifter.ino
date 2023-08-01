@@ -25,7 +25,7 @@ int hueValue;
 DEFINE_GRADIENT_PALETTE (chill_grad1) {
 	  0,   0, 255, 255, // Cyan
 	 64,   0,   0, 255, // Blue
-	128, 127,   0, 255, // Purple
+	 96, 127,   0, 255, // Purple
 	192, 255,   0, 255, // Magenta
 	255,   0, 255, 255  // Cyan
 };
@@ -50,11 +50,6 @@ int ejBoolMaxRPM = 6500;
 // LED Select Idle to Start Range
 int boolLEDIdleToStartRangeLeft;
 int boolLEDIdleToStartRangeRight;
-// LED Select Idle to Start Range BLACK
-int LEDIdleStartRangeLeftOff;
-int LEDIdleStartRangeRightOff;
-
-
 
 // LED Select Start to Mid Range
 int boolLEDStartToMidRangeLeft;
@@ -134,10 +129,10 @@ void boolMode() {
 				Serial.print(" | ");
 
 				for (int i = 7; i >= boolLEDIdleToStartRangeLeft; --i) {
-					shifterLeds[i] = CHSV(224, 255, 255);
+					shifterLeds[i] = CHSV(220, 255, 255);
 				}
 				for (int i = boolLEDIdleToStartRangeRight; i > leftLEDRangeMax ; --i) {
-					shifterLeds[i] = CHSV(224, 255, 255);
+					shifterLeds[i] = CHSV(220, 255, 255);
 				}
 
 				//Now we turn off the Upper LEDs since we aint ther yet
@@ -155,18 +150,18 @@ void boolMode() {
 				boolLEDStartToMidRangeRight = map(EJ20RPM, ejBoolStartRPM, ejBoolMidRPM, rightLEDRangeMin, rightLEDRangeMax);
 
 				for (int i = 7; i >= boolLEDStartToMidRangeLeft; --i) {
-					shifterLeds[i] = CHSV(64, 255, 255);
+					shifterLeds[i] = CHSV(60, 255, 255);
 				}
 				for (int i = boolLEDStartToMidRangeRight; i > leftLEDRangeMax ; --i) {
-					shifterLeds[i] = CHSV(64, 255, 255);
+					shifterLeds[i] = CHSV(60, 255, 255);
 				}
 				
 				//Now we turn off the Upper LEDs since we aint ther yet
 				for (int i = 0; i <= boolLEDStartToMidRangeLeft - 1; ++i) {
-					shifterLeds[i] = CHSV(0, 255, 0);
+					shifterLeds[i] = CHSV(220, 255, 255);
 				}
 				for (int i = rightLEDRangeMax; i > boolLEDStartToMidRangeRight ; --i) {
-					shifterLeds[i] = CHSV(0, 255, 0);
+					shifterLeds[i] = CHSV(220, 255, 255);
 				}
 			}
 			// Mid to High RPM Range
@@ -184,10 +179,10 @@ void boolMode() {
 				
 				//Now we turn off the Upper LEDs since we aint ther yet
 				for (int i = 0; i <= boolLEDMidToHighRangeLeft - 1; ++i) {
-					shifterLeds[i] = CHSV(0, 255, 0);
+					shifterLeds[i] = CHSV(60, 255, 255);
 				}
 				for (int i = rightLEDRangeMax; i > boolLEDMidToHighRangeRight ; --i) {
-					shifterLeds[i] = CHSV(0, 255, 0);
+					shifterLeds[i] = CHSV(60, 255, 255);
 				}
 			}
 			// High to Max RPM Range
