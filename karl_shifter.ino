@@ -122,7 +122,7 @@ void boolMode() {
 				boolLEDIdleToStartRangeLeft = map(EJ20RPM, ejBoolIdleRPM, ejBoolStartRPM, leftLEDRangeMax, -1);
 				boolLEDIdleToStartRangeRight = map(EJ20RPM, ejBoolIdleRPM, ejBoolStartRPM, rightLEDRangeMin, rightLEDRangeMax);
 
-				Serial.print("Left:");
+				Serial.print("Left:"); //Debug LED Positions
 				Serial.print(boolLEDIdleToStartRangeLeft);
 				Serial.print(" Right:");
 				Serial.print(boolLEDIdleToStartRangeRight);
