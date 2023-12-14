@@ -1,6 +1,7 @@
 #include <FastLED.h>
+#include <Canbus.h>
 
-#define NUM_LEDS 16
+#define NUM_LEDS 92
 #define LED_DATA_PIN 2
 
 CRGB shifterLeds[NUM_LEDS];
@@ -10,16 +11,13 @@ const int selSolidColor = 3;
 const int selChill = 4;
 const int selBoolMode = 5;
 const int illuminationSig = 6;
-const int ignitionSignalInput = 7;
+// const int ignitionSignalInput = 7;
 const int huePot = A0;
 const int testRPM = A1;
 
 //	Variables
 int masterBrightness;
 int hueValue;
-// const int chillRangeStart = 128;
-// const int chillRangeStop = 224;
-// int chillHueValue = chillRangeStart;
 
 // Chill Mode Gradient
 DEFINE_GRADIENT_PALETTE (chill_grad1) {
@@ -32,15 +30,9 @@ DEFINE_GRADIENT_PALETTE (chill_grad1) {
 CRGBPalette16 chillPallet1 = chill_grad1;
 uint8_t paletteIndex = 0;
 
-//  RPM Reader Variables
-// long highPulse;
-// long lowPulse;
-// long cycleTime;
-// float cycleFreq;
-// int cylinderFreq;
-int EJ20RPM;
 
-//  Bool Mode Variables
+
+// -------- Bool Mode Variables --------
 int ejBoolIdleRPM = 450;   // Pink
 int ejBoolStartRPM = 3500; // Yellow
 int ejBoolMidRPM = 4500;   // Red
@@ -60,22 +52,30 @@ int boolLEDMidToHighRangeLeft;
 int boolLEDMidToHighRangeRight;
 
 // LED Range Map Operators
-int varNumLED = 16;
-int leftLEDRangeMax = (varNumLED / 2) - 1;
-int rightLEDRangeMax = varNumLED;
-int rightLEDRangeMin = varNumLED / 2;
+// int varNumLED = 16;
+int leftLEDRangeMax = (NUM_LEDS / 2) - 1;
+int rightLEDRangeMax = NUM_LEDS;
+int rightLEDRangeMin = NUM_LEDS / 2;
+
+int EJ20RPM;
+char buffer[64];
 
 
 void setup() {
-	FastLED.addLeds<WS2812B, LED_DATA_PIN, GRB>(shifterLeds, NUM_LEDS);
-	pinMode(selSolidColor, INPUT);
-	pinMode(selChill, INPUT);
-	pinMode(selBoolMode, INPUT);
-	pinMode(illuminationSig, INPUT);
-	pinMode(huePot, INPUT);
-	pinMode(testRPM, INPUT);
-	pinMode(ignitionSignalInput, INPUT);
 	Serial.begin(9600);
+	FastLED.addLeds<WS2812B, LED_DATA_PIN, GRB>(shifterLeds, NUM_LEDS);
+	if (Canbus.init(CANSPEED_500)) {
+		Serial.println("CAN Init OK");
+	} else {
+		Serial.println("Cannot Init CAN");
+	}
+	pinMode(selSolidColor, INPUT_PULLUP);
+	pinMode(selChill, INPUT_PULLUP);
+	pinMode(selBoolMode, INPUT_PULLUP);
+	pinMode(illuminationSig, INPUT_PULLUP);
+	pinMode(huePot, INPUT);
+	// pinMode(testRPM, INPUT);
+	// pinMode(ignitionSignalInput, INPUT);
 }
 
 void loop() {
@@ -98,17 +98,14 @@ void brightnessControl() {
 }
 
 void boolMode() {
-	while (digitalRead(selBoolMode) == HIGH) {
+	while (digitalRead(selBoolMode) == LOW) {
 		brightnessControl();
-		EJ20RPM = map(analogRead(testRPM), 0, 1024, 0, 6500);
+
+		// EJ20RPM = map(analogRead(testRPM), 0, 1024, 0, 6500);
+		Canbus.ecu_req(ENGINE_RPM, buffer);
+		EJ20RPM = buffer;
 
 		serialDebug("Bool Mode", EJ20RPM);
-		// highPulse = pulseIn(ignitionSignalInput, 1000);
-		// lowPulse = pulseIn(ignitionSignalInput, LOW);
-		// cycleTime = highPulse + lowPulse;
-		// cycleFreq = 1000000 / cycleTime;
-		// cylinderFreq = cycleFreq * 60;
-		// EJ20RPM = cylinderFreq * 4;
 
 		if (EJ20RPM == 0) {
 			for (int i = 0; i < NUM_LEDS; ++i) {
@@ -122,7 +119,7 @@ void boolMode() {
 				boolLEDIdleToStartRangeLeft = map(EJ20RPM, ejBoolIdleRPM, ejBoolStartRPM, leftLEDRangeMax, -1);
 				boolLEDIdleToStartRangeRight = map(EJ20RPM, ejBoolIdleRPM, ejBoolStartRPM, rightLEDRangeMin, rightLEDRangeMax);
 
-				Serial.print("Left:"); //Debug LED Positions
+				Serial.print("Left:");
 				Serial.print(boolLEDIdleToStartRangeLeft);
 				Serial.print(" Right:");
 				Serial.print(boolLEDIdleToStartRangeRight);
@@ -206,7 +203,7 @@ void boolMode() {
 }
 
 void solidColor() {
-	while (digitalRead(selSolidColor) == HIGH) {
+	while (digitalRead(selSolidColor) == LOW) {
 		brightnessControl();
 		serialDebug("Solid Color", hueValue);
 		hueValue = map(analogRead(huePot), 0, 1020, 0, 255);
@@ -218,7 +215,7 @@ void solidColor() {
 }
 
 void chillMode() {
-	while (digitalRead(selChill) == HIGH) {
+	while (digitalRead(selChill) == LOW) {
 		brightnessControl();
 		serialDebug("Chill Mode", paletteIndex);
 		fill_palette(shifterLeds, NUM_LEDS, paletteIndex, 255 / NUM_LEDS, chillPallet1, 255, LINEARBLEND);
