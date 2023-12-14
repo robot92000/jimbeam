@@ -13,7 +13,7 @@ const int selBoolMode = 5;
 const int illuminationSig = 6;
 // const int ignitionSignalInput = 7;
 const int huePot = A0;
-const int testRPM = A1;
+//const int testRPM = A1;
 
 //	Variables
 int masterBrightness;
